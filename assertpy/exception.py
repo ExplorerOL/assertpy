@@ -100,14 +100,24 @@ class ExceptionMixin(object):
                 return self.builder(str(e), self.description, self.kind)
             else:
                 # got exception, but wrong type, so raise
-                return self.error('Expected <%s> to raise <%s> when called with (%s), but raised <%s>.' % (
+                wrong_exception_error_msg = 'Expected <%s> to raise <%s> when called with (%s), but raised <%s>.' % (
                     self.val.__name__,
                     self.expected.__name__,
                     self._fmt_args_kwargs(*some_args, **some_kwargs),
-                    type(e).__name__))
+                    type(e).__name__)
+                if self._is_native_assert is True:
+                    wrong_exception_error_msg = self._add_desctiption_to_error_msg(wrong_exception_error_msg)
+                    assert issubclass(type(e), self.expected), wrong_exception_error_msg
+                else:
+                    return self.error(wrong_exception_error_msg)
 
         # didn't fail as expected, so raise
-        return self.error('Expected <%s> to raise <%s> when called with (%s).' % (
+        no_exception_error_msg = 'Expected <%s> to raise <%s> when called with (%s).' % (
             self.val.__name__,
             self.expected.__name__,
-            self._fmt_args_kwargs(*some_args, **some_kwargs)))
+            self._fmt_args_kwargs(*some_args, **some_kwargs))
+        if self._is_native_assert is True:
+            no_exception_error_msg = self._add_desctiption_to_error_msg(no_exception_error_msg)
+            assert False, no_exception_error_msg
+        else:
+            return self.error(no_exception_error_msg)

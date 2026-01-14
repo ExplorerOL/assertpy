@@ -65,7 +65,12 @@ class DateMixin(object):
         if type(other) is not datetime.datetime:
             raise TypeError('given arg must be datetime, but was type <%s>' % type(other).__name__)
         if self.val >= other:
-            return self.error('Expected <%s> to be before <%s>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S')))
+            error_msg = f'Expected <{self.val.strftime("%Y-%m-%d %H:%M:%S")}> to be before <{other.strftime("%Y-%m-%d %H:%M:%S")}>, but was not.'
+            if self._is_native_assert is True:
+                error_msg = self._add_desctiption_to_error_msg(error_msg)
+                assert self.val < other, error_msg
+            else:
+                return self.error(error_msg)
         return self
 
     def is_after(self, other):
@@ -99,7 +104,12 @@ class DateMixin(object):
         if type(other) is not datetime.datetime:
             raise TypeError('given arg must be datetime, but was type <%s>' % type(other).__name__)
         if self.val <= other:
-            return self.error('Expected <%s> to be after <%s>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S')))
+            error_msg = f'Expected <{self.val.strftime("%Y-%m-%d %H:%M:%S")}> to be after <{other.strftime("%Y-%m-%d %H:%M:%S")}>, but was not.'
+            if self._is_native_assert is True:
+                error_msg = self._add_desctiption_to_error_msg(error_msg)
+                assert self.val > other, error_msg
+            else:
+                return self.error(error_msg)
         return self
 
     def is_equal_to_ignoring_milliseconds(self, other):
@@ -129,7 +139,12 @@ class DateMixin(object):
         if type(other) is not datetime.datetime:
             raise TypeError('given arg must be datetime, but was type <%s>' % type(other).__name__)
         if self.val.date() != other.date() or self.val.hour != other.hour or self.val.minute != other.minute or self.val.second != other.second:
-            return self.error('Expected <%s> to be equal to <%s>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S')))
+            error_msg = f'Expected <{self.val.strftime("%Y-%m-%d %H:%M:%S")}> to be equal to <{other.strftime("%Y-%m-%d %H:%M:%S")}>, but was not.'
+            if self._is_native_assert is True:
+                error_msg = self._add_desctiption_to_error_msg(error_msg)
+                assert self.val.replace(microsecond=0) == other.replace(microsecond=0), error_msg
+            else:
+                return self.error(error_msg)
         return self
 
     def is_equal_to_ignoring_seconds(self, other):
@@ -159,7 +174,12 @@ class DateMixin(object):
         if type(other) is not datetime.datetime:
             raise TypeError('given arg must be datetime, but was type <%s>' % type(other).__name__)
         if self.val.date() != other.date() or self.val.hour != other.hour or self.val.minute != other.minute:
-            return self.error('Expected <%s> to be equal to <%s>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M'), other.strftime('%Y-%m-%d %H:%M')))
+            error_msg = f'Expected <{self.val.strftime("%Y-%m-%d %H:%M")}> to be equal to <{other.strftime("%Y-%m-%d %H:%M")}>, but was not.'
+            if self._is_native_assert is True:
+                error_msg = self._add_desctiption_to_error_msg(error_msg)
+                assert self.val.replace(second=0, microsecond=0) == other.replace(second=0, microsecond=0), error_msg
+            else:
+                return self.error(error_msg)
         return self
 
     def is_equal_to_ignoring_time(self, other):
@@ -189,5 +209,10 @@ class DateMixin(object):
         if type(other) is not datetime.datetime:
             raise TypeError('given arg must be datetime, but was type <%s>' % type(other).__name__)
         if self.val.date() != other.date():
-            return self.error('Expected <%s> to be equal to <%s>, but was not.' % (self.val.strftime('%Y-%m-%d'), other.strftime('%Y-%m-%d')))
+            error_msg = f'Expected <{self.val.strftime("%Y-%m-%d")}> to be equal to <{other.strftime("%Y-%m-%d")}>, but was not.'
+            if self._is_native_assert is True:
+                error_msg = self._add_desctiption_to_error_msg(error_msg)
+                assert self.val.date() == other.date(), error_msg
+            else:
+                return self.error(error_msg)
         return self

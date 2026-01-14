@@ -35,6 +35,7 @@ import inspect
 import logging
 import sys
 import types
+from typing import Any
 from .base import BaseMixin
 from .collection import CollectionMixin
 from .contains import ContainsMixin
@@ -49,28 +50,31 @@ from .numeric import NumericMixin
 from .snapshot import SnapshotMixin
 from .string import StringMixin
 
-__version__ = '1.1'
+__version__ = '1.2.0'
 
 __tracebackhide__ = True  # clean tracebacks via py.test integration
 contextlib.__tracebackhide__ = True  # monkey patch contextlib with clean py.test tracebacks
 
 # assertpy files
-ASSERTPY_FILES = [os.path.join('assertpy', file) for file in [
-    'assertpy.py',
-    'base.py',
-    'collection.py',
-    'contains.py',
-    'date.py',
-    'dict.py',
-    'dynamic.py',
-    'exception.py',
-    'extracting.py',
-    'file.py',
-    'helpers.py',
-    'numeric.py',
-    'snapshot.py',
-    'string.py'
-]]
+ASSERTPY_FILES = [
+    os.path.join('assertpy', file)
+    for file in [
+        'assertpy.py',
+        'base.py',
+        'collection.py',
+        'contains.py',
+        'date.py',
+        'dict.py',
+        'dynamic.py',
+        'exception.py',
+        'extracting.py',
+        'file.py',
+        'helpers.py',
+        'numeric.py',
+        'snapshot.py',
+        'string.py',
+    ]
+]
 
 # soft assertions
 _soft_ctx = 0
@@ -131,14 +135,31 @@ def soft_assertions():
     if _soft_err and _soft_ctx == 0:
         out = 'soft assertion failures:'
         for i, msg in enumerate(_soft_err):
-            out += '\n%d. %s' % (i+1, msg)
+            out += '\n%d. %s' % (i + 1, msg)
         # reset msg, then raise
         _soft_err = []
         raise AssertionError(out)
 
 
-# factory methods
-def assert_that(val, description=''):
+class AssertThat:
+    _is_native_assert: bool = True
+    # _is_rewrite_needed = False
+
+    def __call__(self, val: Any, description: str = '') -> 'AssertionBuilder':
+        return _assert_that(val=val, description=description, is_native_assert=self._is_native_assert)
+
+    def configure(
+        self,
+        is_native_assert: bool = True,
+    ):
+        print(f'Configuring assert_that: is_native_assert={is_native_assert}')
+        self._is_native_assert = is_native_assert
+
+
+assert_that = AssertThat()
+
+
+def _assert_that(val, description='', is_native_assert: bool = True):
     """Set the value to be tested, plus an optional description, and allow assertions to be called.
 
     This is a factory method for the :class:`AssertionBuilder`, and the single most important
@@ -162,9 +183,10 @@ def assert_that(val, description=''):
     global _soft_ctx
     if _soft_ctx:
         return _builder(val, description, 'soft')
-    return _builder(val, description)
+    return _builder(val, description, is_native_assert=is_native_assert)
 
 
+# factory methods
 def assert_warn(val, description='', logger=None):
     """Set the value to be tested, and optional description and logger, and allow assertions to be
     called, but never fail, only log warnings.
@@ -330,9 +352,9 @@ def remove_extension(func):
         del _extensions[func.__name__]
 
 
-def _builder(val, description='', kind=None, expected=None, logger=None):
+def _builder(val, description='', kind=None, expected=None, logger=None, is_native_assert=False):
     """Internal helper to build a new :class:`AssertionBuilder` instance and glue on any extension methods."""
-    ab = AssertionBuilder(val, description, kind, expected, logger)
+    ab = AssertionBuilder(val, description, kind, expected, logger, is_native_assert=is_native_assert)
     if _extensions:
         # glue extension method onto new builder instance
         for name, func in _extensions.items():
@@ -388,7 +410,7 @@ class AssertionBuilder(
     ContainsMixin,
     CollectionMixin,
     BaseMixin,
-    object
+    AssertThat,
 ):
     """The main assertion class.  Never call the constructor directly, always use the
     :meth:`assert_that` helper instead.  Or if you just want warning messages, use the
@@ -404,15 +426,20 @@ class AssertionBuilder(
         logger (Logger, optional): the logger for warning messages.  Defaults to ``None``
     """
 
-    def __init__(self, val, description='', kind=None, expected=None, logger=None):
+    def __init__(
+        self, val, description='', kind=None, expected=None, logger=None, is_native_assert: bool = False
+    ):
         """Never call this constructor directly."""
         self.val = val
         self.description = description
         self.kind = kind
         self.expected = expected
         self.logger = logger if logger else _default_logger
+        self._is_native_assert = is_native_assert
 
-    def builder(self, val, description='', kind=None, expected=None, logger=None):
+    def builder(
+        self, val, description='', kind=None, expected=None, logger=None, is_native_assert: bool = False
+    ):
         """Helper to build a new :class:`AssertionBuilder` instance. Use this only if not chaining to ``self``.
 
         Args:
@@ -424,7 +451,7 @@ class AssertionBuilder(
             expected (Error, optional): the expected exception.  Defaults to ``None``
             logger (Logger, optional): the logger for warning messages.  Defaults to ``None``
         """
-        return _builder(val, description, kind, expected, logger)
+        return _builder(val, description, kind, expected, logger, is_native_assert)
 
     def error(self, msg):
         """Helper to raise an ``AssertionError`` with the given message.

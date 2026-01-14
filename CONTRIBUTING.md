@@ -39,3 +39,8 @@ tests/test_warn.py::test_failures PASSED
 
 ===== 589 passed in 1.91s =====
 ```
+
+Building package
+```
+python -m build
+```

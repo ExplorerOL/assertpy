@@ -180,9 +180,9 @@ class ExtractingMixin(object):
             elif isinstance(x, tuple) and hasattr(x, '_fields') and type(name) is str:
                 if name in x._fields:
                     return getattr(x, name)
-                else: #val has no attribute <foo>
+                else:  # val has no attribute <foo>
                     raise ValueError('item attributes %s did no contain attribute <%s>' % (x._fields, name))
-            elif isinstance(x, Iterable): # FIXME, this does __getitem__, but doesn't check for it...
+            elif isinstance(x, Iterable):  # FIXME, this does __getitem__, but doesn't check for it...
                 self._check_iterable(x, name='item')
                 return x[name]
             elif hasattr(x, name):
@@ -233,4 +233,4 @@ class ExtractingMixin(object):
                 extracted.append(tuple(items) if len(items) > 1 else items[0])
 
         # chain on with _extracted_ list (don't chain to self!)
-        return self.builder(extracted, self.description, self.kind)
+        return self.builder(extracted, self.description, self.kind, is_native_assert=self._is_native_assert)

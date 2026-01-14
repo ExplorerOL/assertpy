@@ -1,4 +1,4 @@
-from distutils.core import setup
+from setuptools import setup
 import assertpy
 
 desc = """
@@ -49,6 +49,10 @@ setup(
     download_url='https://github.com/assertpy/assertpy/archive/%s.tar.gz' % assertpy.__version__,
     keywords=['test', 'testing', 'assert', 'assertion', 'assertthat', 'assert_that', 'nose', 'nosetests', 'pytest', 'unittest'],
     license='BSD',
+    python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*',
+    extras_require={
+        'pytest': ['pytest>=4.0'],
+    },
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
@@ -64,5 +68,8 @@ setup(
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
         'Topic :: Software Development',
         'Topic :: Software Development :: Testing'])

@@ -56,8 +56,13 @@ class CollectionMixin(object):
         Raises:
             AssertionError: if val is **not** iterable
         """
-        if not isinstance(self.val, Iterable):
-            return self.error('Expected iterable, but was not.')
+        error_msg = 'Expected iterable, but was not.'
+        if self._is_native_assert is True:
+            error_msg = self._add_desctiption_to_error_msg(error_msg)
+            assert isinstance(self.val, Iterable), error_msg
+        else:
+            if not isinstance(self.val, Iterable):
+                return self.error(error_msg)
         return self
 
     def is_not_iterable(self):
@@ -77,8 +82,13 @@ class CollectionMixin(object):
         Raises:
             AssertionError: if val **is** iterable
         """
-        if isinstance(self.val, Iterable):
-            return self.error('Expected not iterable, but was.')
+        error_msg = 'Expected not iterable, but was.'
+        if self._is_native_assert is True:
+            error_msg = self._add_desctiption_to_error_msg(error_msg)
+            assert not isinstance(self.val, Iterable), error_msg
+        else:
+            if isinstance(self.val, Iterable):
+                return self.error(error_msg)
         return self
 
     def is_subset_of(self, *supersets):
@@ -129,8 +139,12 @@ class CollectionMixin(object):
                 elif self.val[i] != superdict[i]:
                     missing.append({i: self.val[i]})  # bad val
             if missing:
-                return self.error('Expected <%s> to be subset of %s, but %s %s missing.' % (
-                    self.val, self._fmt_items(superdict), self._fmt_items(missing), 'was' if len(missing) == 1 else 'were'))
+                error_msg = f'Expected <{self.val}> to be subset of {self._fmt_items(superdict)}, but {self._fmt_items(missing)} {("was" if len(missing) == 1 else "were")} missing.'
+                if self._is_native_assert is True:
+                    error_msg = self._add_desctiption_to_error_msg(error_msg)
+                    assert False, error_msg
+                else:
+                    return self.error(error_msg)
         else:
             # flatten supersets
             superset = set()
@@ -145,8 +159,12 @@ class CollectionMixin(object):
                 if i not in superset:
                     missing.append(i)
             if missing:
-                return self.error('Expected <%s> to be subset of %s, but %s %s missing.' % (
-                    self.val, self._fmt_items(superset), self._fmt_items(missing), 'was' if len(missing) == 1 else 'were'))
+                error_msg = f'Expected <{self.val}> to be subset of {self._fmt_items(superset)}, but {self._fmt_items(missing)} {("was" if len(missing) == 1 else "were")} missing.'
+                if self._is_native_assert is True:
+                    error_msg = self._add_desctiption_to_error_msg(error_msg)
+                    assert False, error_msg
+                else:
+                    return self.error(error_msg)
 
         return self
 
@@ -183,14 +201,25 @@ class CollectionMixin(object):
         if not isinstance(self.val, Iterable):
             raise TypeError('val is not iterable')
 
+        prev = None
         for i, x in enumerate(self.val):
             if i > 0:
                 if reverse:
-                    if key(x) > key(prev):
-                        return self.error('Expected <%s> to be sorted reverse, but subset %s at index %s is not.' % (self.val, self._fmt_items([prev, x]), i-1))
+                    error_msg = f'Expected <{self.val}> to be sorted reverse, but subset {self._fmt_items([prev, x])} at index {i-1} is not.'
+                    if self._is_native_assert is True:
+                        error_msg = self._add_desctiption_to_error_msg(error_msg)
+                        assert key(x) <= key(prev), error_msg
+                    else:
+                        if key(x) > key(prev):
+                            return self.error(error_msg)
                 else:
-                    if key(x) < key(prev):
-                        return self.error('Expected <%s> to be sorted, but subset %s at index %s is not.' % (self.val, self._fmt_items([prev, x]), i-1))
+                    error_msg = f'Expected <{self.val}> to be sorted, but subset {self._fmt_items([prev, x])} at index {i-1} is not.'
+                    if self._is_native_assert is True:
+                        error_msg = self._add_desctiption_to_error_msg(error_msg)
+                        assert key(x) >= key(prev), error_msg
+                    else:
+                        if key(x) < key(prev):
+                            return self.error(error_msg)
             prev = x
 
         return self

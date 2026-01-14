@@ -106,7 +106,13 @@ class DictMixin(object):
             if v not in self.val.values():
                 missing.append(v)
         if missing:
-            return self.error('Expected <%s> to contain values %s, but did not contain %s.' % (self.val, self._fmt_items(values), self._fmt_items(missing)))
+            error_msg = f'Expected <{self.val}> to contain values {self._fmt_items(values)}, but did not contain {self._fmt_items(missing)}.'
+            if self._is_native_assert is True:
+                error_msg = self._add_desctiption_to_error_msg(error_msg)
+                for value in values:
+                    assert value in self.val.values(), error_msg
+            else:
+                return self.error(error_msg)
         return self
 
     def does_not_contain_value(self, *values):
@@ -138,7 +144,13 @@ class DictMixin(object):
                 if v in self.val.values():
                     found.append(v)
             if found:
-                return self.error('Expected <%s> to not contain values %s, but did contain %s.' % (self.val, self._fmt_items(values), self._fmt_items(found)))
+                error_msg = f'Expected <{self.val}> to not contain values {self._fmt_items(values)}, but did contain {self._fmt_items(found)}.'
+                if self._is_native_assert is True:
+                    error_msg = self._add_desctiption_to_error_msg(error_msg)
+                    for value in values:
+                        assert value not in self.val.values(), error_msg
+                else:
+                    return self.error(error_msg)
         return self
 
     def contains_entry(self, *args, **kwargs):
@@ -189,7 +201,14 @@ class DictMixin(object):
             elif self.val[k] != e[k]:
                 missing.append(e)  # bad val
         if missing:
-            return self.error('Expected <%s> to contain entries %s, but did not contain %s.' % (self.val, self._fmt_items(entries), self._fmt_items(missing)))
+            error_msg = f'Expected <{self.val}> to contain entries {self._fmt_items(entries)}, but did not contain {self._fmt_items(missing)}.'
+            if self._is_native_assert is True:
+                error_msg = self._add_desctiption_to_error_msg(error_msg)
+                for e in entries:
+                    k = next(iter(e))
+                    assert k in self.val and self.val[k] == e[k], error_msg
+            else:
+                return self.error(error_msg)
         return self
 
     def does_not_contain_entry(self, *args, **kwargs):
@@ -232,5 +251,13 @@ class DictMixin(object):
             if k in self.val and e[k] == self.val[k]:
                 found.append(e)
         if found:
-            return self.error('Expected <%s> to not contain entries %s, but did contain %s.' % (self.val, self._fmt_items(entries), self._fmt_items(found)))
+            error_msg = f'Expected <{self.val}> to not contain entries {self._fmt_items(entries)}, but did contain {self._fmt_items(found)}.'
+            if self._is_native_assert is True:
+                error_msg = self._add_desctiption_to_error_msg(error_msg)
+                for e in entries:
+                    k = next(iter(e))
+                    if k in self.val:
+                        assert not (k in self.val and e[k] == self.val[k]), error_msg
+            else:
+                return self.error(error_msg)
         return self

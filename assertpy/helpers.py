@@ -215,8 +215,8 @@ class HelpersMixin(object):
         """Helper to make a list from given include kwarg values."""
         return [i[0] if type(i) is tuple else i for i in (include if type(include) is list else [include])]
 
-    def _dict_err(self, val, other, ignore=None, include=None):
-        """Helper to construct error message for dict comparison."""
+    def _create_dict_err_msg(self, val, other, ignore=None, include=None) -> str:
+
         def _dict_repr(d, other):
             out = ''
             ellip = False
@@ -242,9 +242,18 @@ class HelpersMixin(object):
             includes = self._dict_ignore(include)
             include_err = ' including keys %s' % self._fmt_items(['.'.join([str(s) for s in i]) if type(i) is tuple else i for i in includes])
 
-        return self.error('Expected <%s> to be equal to <%s>%s%s, but was not.' % (
+        error_dict_msg = 'Expected <%s> to be equal to <%s>%s%s, but was not.' % (
             _dict_repr(val, other),
             _dict_repr(other, val),
             ignore_err if ignore else '',
             include_err if include else ''
-        ))
+        )
+        return error_dict_msg
+
+    def _dict_err(self, val, other, ignore=None, include=None):
+        """Helper to construct error message for dict comparison."""
+        error_dict_msg = self._create_dict_err_msg(val,other,ignore, include)
+        return self.error(error_dict_msg)
+
+    def _add_desctiption_to_error_msg(self, error_msg: str):
+        return f'[{self.description}] {error_msg}' if self.description else error_msg

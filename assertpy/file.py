@@ -109,7 +109,12 @@ class FileMixin(object):
         if not isinstance(self.val, str_types):
             raise TypeError('val is not a path')
         if not os.path.exists(self.val):
-            return self.error('Expected <%s> to exist, but was not found.' % self.val)
+            error_msg = f'Expected <{self.val}> to exist, but was not found.'
+            if self._is_native_assert is True:
+                error_msg = self._add_desctiption_to_error_msg(error_msg)
+                assert os.path.exists(self.val), error_msg
+            else:
+                return self.error(error_msg)
         return self
 
     def does_not_exist(self):
@@ -130,7 +135,12 @@ class FileMixin(object):
         if not isinstance(self.val, str_types):
             raise TypeError('val is not a path')
         if os.path.exists(self.val):
-            return self.error('Expected <%s> to not exist, but was found.' % self.val)
+            error_msg = f'Expected <{self.val}> to not exist, but was found.'
+            if self._is_native_assert is True:
+                error_msg = self._add_desctiption_to_error_msg(error_msg)
+                assert not os.path.exists(self.val), error_msg
+            else:
+                return self.error(error_msg)
         return self
 
     def is_file(self):
@@ -149,7 +159,12 @@ class FileMixin(object):
         """
         self.exists()
         if not os.path.isfile(self.val):
-            return self.error('Expected <%s> to be a file, but was not.' % self.val)
+            error_msg = f'Expected <{self.val}> to be a file, but was not.'
+            if self._is_native_assert is True:
+                error_msg = self._add_desctiption_to_error_msg(error_msg)
+                assert os.path.isfile(self.val), error_msg
+            else:
+                return self.error(error_msg)
         return self
 
     def is_directory(self):
@@ -168,7 +183,12 @@ class FileMixin(object):
         """
         self.exists()
         if not os.path.isdir(self.val):
-            return self.error('Expected <%s> to be a directory, but was not.' % self.val)
+            error_msg = f'Expected <{self.val}> to be a directory, but was not.'
+            if self._is_native_assert is True:
+                error_msg = self._add_desctiption_to_error_msg(error_msg)
+                assert os.path.isdir(self.val), error_msg
+            else:
+                return self.error(error_msg)
         return self
 
     def is_named(self, filename):
@@ -193,7 +213,12 @@ class FileMixin(object):
             raise TypeError('given filename arg must be a path')
         val_filename = os.path.basename(os.path.abspath(self.val))
         if val_filename != filename:
-            return self.error('Expected filename <%s> to be equal to <%s>, but was not.' % (val_filename, filename))
+            error_msg = f'Expected filename <{val_filename}> to be equal to <{filename}>, but was not.'
+            if self._is_native_assert is True:
+                error_msg = self._add_desctiption_to_error_msg(error_msg)
+                assert val_filename == filename, error_msg
+            else:
+                return self.error(error_msg)
         return self
 
     def is_child_of(self, parent):
@@ -221,5 +246,10 @@ class FileMixin(object):
         val_abspath = os.path.abspath(self.val)
         parent_abspath = os.path.abspath(parent)
         if not val_abspath.startswith(parent_abspath):
-            return self.error('Expected file <%s> to be a child of <%s>, but was not.' % (val_abspath, parent_abspath))
+            error_msg = f'Expected file <{val_abspath}> to be a child of <{parent_abspath}>, but was not.'
+            if self._is_native_assert is True:
+                error_msg = self._add_desctiption_to_error_msg(error_msg)
+                assert val_abspath.startswith(parent_abspath), error_msg
+            else:
+                return self.error(error_msg)
         return self

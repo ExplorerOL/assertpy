@@ -120,7 +120,12 @@ class NumericMixin(object):
         self._validate_number()
         self._validate_real()
         if not math.isnan(self.val):
-            return self.error('Expected <%s> to be <NaN>, but was not.' % self.val)
+            error_msg = f'Expected <{self.val}> to be <NaN>, but was not.'
+            if self._is_native_assert is True:
+                error_msg = self._add_desctiption_to_error_msg(error_msg)
+                assert math.isnan(self.val), error_msg
+            else:
+                return self.error(error_msg)
         return self
 
     def is_not_nan(self):
@@ -142,7 +147,12 @@ class NumericMixin(object):
         self._validate_number()
         self._validate_real()
         if math.isnan(self.val):
-            return self.error('Expected not <NaN>, but was.')
+            error_msg = 'Expected not <NaN>, but was.'
+            if self._is_native_assert is True:
+                error_msg = self._add_desctiption_to_error_msg(error_msg)
+                assert not math.isnan(self.val), error_msg
+            else:
+                return self.error(error_msg)
         return self
 
     def is_inf(self):
@@ -163,7 +173,12 @@ class NumericMixin(object):
         self._validate_number()
         self._validate_real()
         if not math.isinf(self.val):
-            return self.error('Expected <%s> to be <Inf>, but was not.' % self.val)
+            error_msg = f'Expected <{self.val}> to be <Inf>, but was not.'
+            if self._is_native_assert is True:
+                error_msg = self._add_desctiption_to_error_msg(error_msg)
+                assert math.isinf(self.val), error_msg
+            else:
+                return self.error(error_msg)
         return self
 
     def is_not_inf(self):
@@ -185,7 +200,12 @@ class NumericMixin(object):
         self._validate_number()
         self._validate_real()
         if math.isinf(self.val):
-            return self.error('Expected not <Inf>, but was.')
+            error_msg = 'Expected not <Inf>, but was.'
+            if self._is_native_assert is True:
+                error_msg = self._add_desctiption_to_error_msg(error_msg)
+                assert not math.isinf(self.val), error_msg
+            else:
+                return self.error(error_msg)
         return self
 
     def is_greater_than(self, other):
@@ -218,10 +238,19 @@ class NumericMixin(object):
         self._validate_compareable(other)
         if self.val <= other:
             if type(self.val) is datetime.datetime:
-                return self.error('Expected <%s> to be greater than <%s>, but was not.' % (
-                    self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S')))
+                error_msg = f'Expected <{self.val.strftime("%Y-%m-%d %H:%M:%S")}> to be greater than <{other.strftime("%Y-%m-%d %H:%M:%S")}>, but was not.'
+                if self._is_native_assert is True:
+                    error_msg = self._add_desctiption_to_error_msg(error_msg)
+                    assert self.val > other, error_msg
+                else:
+                    return self.error(error_msg)
             else:
-                return self.error('Expected <%s> to be greater than <%s>, but was not.' % (self.val, other))
+                error_msg = f'Expected <{self.val}> to be greater than <{other}>, but was not.'
+                if self._is_native_assert is True:
+                    error_msg = self._add_desctiption_to_error_msg(error_msg)
+                    assert self.val > other, error_msg
+                else:
+                    return self.error(error_msg)
         return self
 
     def is_greater_than_or_equal_to(self, other):
@@ -256,10 +285,19 @@ class NumericMixin(object):
         self._validate_compareable(other)
         if self.val < other:
             if type(self.val) is datetime.datetime:
-                return self.error('Expected <%s> to be greater than or equal to <%s>, but was not.' % (
-                    self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S')))
+                error_msg = f'Expected <{self.val.strftime("%Y-%m-%d %H:%M:%S")}> to be greater than or equal to <{other.strftime("%Y-%m-%d %H:%M:%S")}>, but was not.'
+                if self._is_native_assert is True:
+                    error_msg = self._add_desctiption_to_error_msg(error_msg)
+                    assert self.val >= other, error_msg
+                else:
+                    return self.error(error_msg)
             else:
-                return self.error('Expected <%s> to be greater than or equal to <%s>, but was not.' % (self.val, other))
+                error_msg = f'Expected <{self.val}> to be greater than or equal to <{other}>, but was not.'
+                if self._is_native_assert is True:
+                    error_msg = self._add_desctiption_to_error_msg(error_msg)
+                    assert self.val >= other, error_msg
+                else:
+                    return self.error(error_msg)
         return self
 
     def is_less_than(self, other):
@@ -292,9 +330,19 @@ class NumericMixin(object):
         self._validate_compareable(other)
         if self.val >= other:
             if type(self.val) is datetime.datetime:
-                return self.error('Expected <%s> to be less than <%s>, but was not.' % (self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S')))
+                error_msg = f'Expected <{self.val.strftime("%Y-%m-%d %H:%M:%S")}> to be less than <{other.strftime("%Y-%m-%d %H:%M:%S")}>, but was not.'
+                if self._is_native_assert is True:
+                    error_msg = self._add_desctiption_to_error_msg(error_msg)
+                    assert self.val < other, error_msg
+                else:
+                    return self.error(error_msg)
             else:
-                return self.error('Expected <%s> to be less than <%s>, but was not.' % (self.val, other))
+                error_msg = f'Expected <{self.val}> to be less than <{other}>, but was not.'
+                if self._is_native_assert is True:
+                    error_msg = self._add_desctiption_to_error_msg(error_msg)
+                    assert self.val < other, error_msg
+                else:
+                    return self.error(error_msg)
         return self
 
     def is_less_than_or_equal_to(self, other):
@@ -329,10 +377,19 @@ class NumericMixin(object):
         self._validate_compareable(other)
         if self.val > other:
             if type(self.val) is datetime.datetime:
-                return self.error('Expected <%s> to be less than or equal to <%s>, but was not.' % (
-                    self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S')))
+                error_msg = f'Expected <{self.val.strftime("%Y-%m-%d %H:%M:%S")}> to be less than or equal to <{other.strftime("%Y-%m-%d %H:%M:%S")}>, but was not.'
+                if self._is_native_assert is True:
+                    error_msg = self._add_desctiption_to_error_msg(error_msg)
+                    assert self.val <= other, error_msg
+                else:
+                    return self.error(error_msg)
             else:
-                return self.error('Expected <%s> to be less than or equal to <%s>, but was not.' % (self.val, other))
+                error_msg = f'Expected <{self.val}> to be less than or equal to <{other}>, but was not.'
+                if self._is_native_assert is True:
+                    error_msg = self._add_desctiption_to_error_msg(error_msg)
+                    assert self.val <= other, error_msg
+                else:
+                    return self.error(error_msg)
         return self
 
     def is_positive(self):
@@ -403,10 +460,19 @@ class NumericMixin(object):
 
         if self.val < low or self.val > high:
             if val_type is datetime.datetime:
-                return self.error('Expected <%s> to be between <%s> and <%s>, but was not.' % (
-                    self.val.strftime('%Y-%m-%d %H:%M:%S'), low.strftime('%Y-%m-%d %H:%M:%S'), high.strftime('%Y-%m-%d %H:%M:%S')))
+                error_msg = f'Expected <{self.val.strftime("%Y-%m-%d %H:%M:%S")}> to be between <{low.strftime("%Y-%m-%d %H:%M:%S")}> and <{high.strftime("%Y-%m-%d %H:%M:%S")}>, but was not.'
+                if self._is_native_assert is True:
+                    error_msg = self._add_desctiption_to_error_msg(error_msg)
+                    assert low <= self.val <= high, error_msg
+                else:
+                    return self.error(error_msg)
             else:
-                return self.error('Expected <%s> to be between <%s> and <%s>, but was not.' % (self.val, low, high))
+                error_msg = f'Expected <{self.val}> to be between <{low}> and <{high}>, but was not.'
+                if self._is_native_assert is True:
+                    error_msg = self._add_desctiption_to_error_msg(error_msg)
+                    assert low <= self.val <= high, error_msg
+                else:
+                    return self.error(error_msg)
         return self
 
     def is_not_between(self, low, high):
@@ -433,10 +499,19 @@ class NumericMixin(object):
 
         if self.val >= low and self.val <= high:
             if val_type is datetime.datetime:
-                return self.error('Expected <%s> to not be between <%s> and <%s>, but was.' % (
-                    self.val.strftime('%Y-%m-%d %H:%M:%S'), low.strftime('%Y-%m-%d %H:%M:%S'), high.strftime('%Y-%m-%d %H:%M:%S')))
+                error_msg = f'Expected <{self.val.strftime("%Y-%m-%d %H:%M:%S")}> to not be between <{low.strftime("%Y-%m-%d %H:%M:%S")}> and <{high.strftime("%Y-%m-%d %H:%M:%S")}>, but was.'
+                if self._is_native_assert is True:
+                    error_msg = self._add_desctiption_to_error_msg(error_msg)
+                    assert not (low <= self.val <= high), error_msg
+                else:
+                    return self.error(error_msg)
             else:
-                return self.error('Expected <%s> to not be between <%s> and <%s>, but was.' % (self.val, low, high))
+                error_msg = f'Expected <{self.val}> to not be between <{low}> and <{high}>, but was.'
+                if self._is_native_assert is True:
+                    error_msg = self._add_desctiption_to_error_msg(error_msg)
+                    assert not (low <= self.val <= high), error_msg
+                else:
+                    return self.error(error_msg)
         return self
 
     def is_close_to(self, other, tolerance):
@@ -474,10 +549,20 @@ class NumericMixin(object):
                 tolerance_seconds = tolerance.days * 86400 + tolerance.seconds + tolerance.microseconds / 1000000
                 h, rem = divmod(tolerance_seconds, 3600)
                 m, s = divmod(rem, 60)
-                return self.error('Expected <%s> to be close to <%s> within tolerance <%d:%02d:%02d>, but was not.' % (
-                    self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S'), h, m, s))
+                error_msg = f'Expected <{self.val.strftime("%Y-%m-%d %H:%M:%S")}> to be close to <{other.strftime("%Y-%m-%d %H:%M:%S")}> within tolerance <{int(h)}:{int(m):02d}:{int(s):02d}>, but was not.'
+                # error_msg = ''
+                if self._is_native_assert is True:
+                    error_msg = self._add_desctiption_to_error_msg(error_msg)
+                    assert abs(self.val - other) <= tolerance, error_msg
+                else:
+                    return self.error(error_msg)
             else:
-                return self.error('Expected <%s> to be close to <%s> within tolerance <%s>, but was not.' % (self.val, other, tolerance))
+                error_msg = f'Expected <{self.val}> to be close to <{other}> within tolerance <{tolerance}>, but was not.'
+                if self._is_native_assert is True:
+                    error_msg = self._add_desctiption_to_error_msg(error_msg)
+                    assert abs(self.val - other) <= tolerance, error_msg
+                else:
+                    return self.error(error_msg)
         return self
 
     def is_not_close_to(self, other, tolerance):
@@ -506,8 +591,17 @@ class NumericMixin(object):
                 tolerance_seconds = tolerance.days * 86400 + tolerance.seconds + tolerance.microseconds / 1000000
                 h, rem = divmod(tolerance_seconds, 3600)
                 m, s = divmod(rem, 60)
-                return self.error('Expected <%s> to not be close to <%s> within tolerance <%d:%02d:%02d>, but was.' % (
-                    self.val.strftime('%Y-%m-%d %H:%M:%S'), other.strftime('%Y-%m-%d %H:%M:%S'), h, m, s))
+                error_msg = f'Expected <{self.val.strftime("%Y-%m-%d %H:%M:%S")}> to not be close to <{other.strftime("%Y-%m-%d %H:%M:%S")}> within tolerance <{int(h)}:{int(m):02d}:{int(s):02d}>, but was.'
+                if self._is_native_assert is True:
+                    error_msg = self._add_desctiption_to_error_msg(error_msg)
+                    assert not (abs(self.val - other) <= tolerance), error_msg
+                else:
+                    return self.error(error_msg)
             else:
-                return self.error('Expected <%s> to not be close to <%s> within tolerance <%s>, but was.' % (self.val, other, tolerance))
+                error_msg = f'Expected <{self.val}> to not be close to <{other}> within tolerance <{tolerance}>, but was.'
+                if self._is_native_assert is True:
+                    error_msg = self._add_desctiption_to_error_msg(error_msg)
+                    assert not (abs(self.val - other) <= tolerance), error_msg
+                else:
+                    return self.error(error_msg)
         return self

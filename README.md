@@ -57,6 +57,42 @@ https://assertpy.github.io/docs.html
 
 And there are hundreds of examples below.  Read on...
 
+### Pytest assertions rewriting
+In case of using pytest [pytest assertions rewriting](https://docs.pytest.org/en/9.0.x/how-to/assert.html#assertion-introspection-details) is used by default. It makes assertion error messages more verbose and detailed.
+For example in case of dictionaries assertions and -vv pytest option
+```py
+ACTUAL_DICT = {'key1': 'value1', 'key2': 'value2', 'key3': 'value3'}
+EXPECTED_DICT = {'key1': 'value1', 'key2': 'value2', 'key3': 'value33'}
+assert_that(ACTUAL_DICT).is_equal_to(EXPECTED_DICT)
+```
+error message is
+```py
+AssertionError: Expected <{.., 'key3': 'value3'}> to be equal to <{.., 'key3': 'value33'}>, but was not.
+assert {'key1': 'value1', 'key2': 'value2', 'key3': 'value3'} == {'key1': 'value1', 'key2': 'value2', 'key3': 'value33'}
+
+  Common items:
+  {'key1': 'value1', 'key2': 'value2'}
+  Differing items:
+  {'key3': 'value3'} != {'key3': 'value33'}
+
+  Full diff:
+    {
+        'key1': 'value1',
+        'key2': 'value2',
+  -     'key3': 'value33',
+  ?                    -
+  +     'key3': 'value3',
+    }
+```
+instead of 
+```py
+AssertionError: Expected <{.., 'key3': 'value3'}> to be equal to <{.., 'key3': 'value33'}>, but was not.
+```
+If that behaviour is undesired, configure assert_that not to use pytest assertions rewriting:
+```py
+assert_that.configure(is_native_assert=False)
+```
+
 ### Strings
 
 Matching strings:
